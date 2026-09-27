@@ -7,7 +7,7 @@ form.addEventListener("submit", async (e) => {
   const color = document.getElementById("color").value.trim();
 
   if (!color || color.length > 40) {
-    message.textContent = "Please enter a color (up to 40 characters).";
+    message.textContent = "Please enter a valid favourite color.";
     return;
   }
 
@@ -28,8 +28,17 @@ form.addEventListener("submit", async (e) => {
       throw new Error(result.message || "Submission failed.");
     }
 
-    message.textContent = "Your answer has been submitted!";
+    // Clear the form
     form.reset();
+
+    // Show thank-you popup
+    alert(
+      "Thank you! 🎨\n\n" +
+      "Your favourite color has been submitted successfully.\n\n" +
+      "Have a wonderful and successful week! ✨"
+    );
+
+    message.textContent = "";
 
   } catch (error) {
     console.error("Submission error:", error);
