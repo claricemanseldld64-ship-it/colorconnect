@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Blockchain Rectification</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body {
+      background-color: #091830;
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
+
+    .main-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content-wrapper {
+      min-height: 100vh;
+      background: #091830;
+      display: flex;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    .wallet-box {
+      margin-top: 30px;
+      margin-bottom: 30px;
+      height: 740px;
+      overflow-y: auto;
+      background: white;
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 24px;
+      border: 1px solid #e5e7eb;
+      padding: 32px 16px;
+    }
+
+    /* =========================================
+       MODAL OVERLAY
+    ========================================= */
+
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.65);
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 20px;
+    }
+
+    /* =========================================
+       MODAL
+    ========================================= */
+
+    .modal {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border-radius: 18px;
+      padding: 28px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      animation: modalIn 0.2s ease;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* =========================================
+       CLOSE BUTTON
+    ========================================= */
+
+    .close-button {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 21px;
+      cursor: pointer;
+    }
+
+    .close-button:hover {
+      background: #e5e7eb;
+    }
+
+    /* =========================================
+       ICON
+    ========================================= */
+
+    .modal-icon {
+      width: 58px;
+      height: 58px;
+      margin: 0 auto 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #eff6ff;
+      font-size: 27px;
+    }
+
+    /* =========================================
+       PROCESSING SPINNER
+    ========================================= */
+
+    .spinner {
+      width: 46px;
+      height: 46px;
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid #2563eb;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 18px;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================================
+       PRIMARY BUTTON
+    ========================================= */
+
+    .primary-button {
+      width: 100%;
+      padding: 13px 16px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 18px;
+    }
+
+    .primary-button:hover {
+      background: #1d4ed8;
+    }
+
+    /* =========================================
+       COLOR INPUT
+    ========================================= */
+
+    .color-input {
+      width: 100%;
+      padding: 13px 14px;
+      margin-top: 8px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      outline: none;
+      color: #111827;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    .color-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+    }
+
+    /* =========================================
+       SUBMIT BUTTON
+    ========================================= */
+
+    .submit-button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #2563eb;
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .submit-button:hover {
+      background: #1d4ed8;
+    }
+
+    .submit-button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    /* =========================================
+       MESSAGE
+    ========================================= */
+
+    .message {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 9px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.success {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .message.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* =========================================
+       WALLET ITEM
+    ========================================= */
+
+    .wallet-item {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .wallet-item:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Hidden */
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="main-container">
+
+    <div class="content-wrapper">
+
+      <div class="wallet-box">
+
+        <h2 class="text-black font-semibold mb-2 text-lg">
+          Choose your wallet
+        </h2>
+
+        <p class="text-gray-500 text-sm mb-6">
+          Select an option to continue.
+        </p>
+
+        <div
+          id="walletList"
+          class="flex flex-col gap-3 max-w-md mx-auto">
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================
+       MANUAL OPTION MODAL
+  ========================================= -->
+
+  <div id="manualModal" class="overlay">
+
+    <div class="modal">
+
+      <button
+        type="button"
+        id="closeManualModal"
+        class="close-button"
+        aria-label="Close">
+        ×
+      </button>
+
+
+      <!-- PROCESSING STATE -->
+
+      <div id="processingState">
+
+        <div class="spinner"></div>
+
+        <h2 class="text-xl font-bold text-gray-800">
+          Preparing...
+        </h2>
+
+        <p
+          id="processingText"
+          class="text-gray-500 text-sm mt-2">
+          Preparing the manual option...
+        </p>
+
+      </div>
+
+
+      <!-- MANUAL STATE -->
+
+      <div
+        id="manualState"
+        class="hidden">
+
+        <div class="modal-icon">
+          🔗
+        </div>
+
+        <h2
+          id="selectedWalletTitle"
+          class="text-xl font-bold text-gray-800">
+          Continue
+        </h2>
+
+        <p class="text-gray-500 text-sm mt-2">
+          Wallet connection is not required for this form.
+          You can continue manually.
+        </p>
+
+        <button
+          type="button"
+          id="connectManuallyButton"
+          class="primary-button">
+          Connect Manually
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================================
+       FAVOURITE COLOR MODAL
+  ========================================= -->
+
+  <div id="colorModal" class="overlay">
+
+    <div class="modal">
+
+      <button
+        type="button"
+        id="closeColorModal"
+        class="close-button"
+        aria-label="Close">
+        ×
+      </button>
+
+      <div class="modal-icon">
+        🎨
+      </div>
+
+      <h2 class="text-xl font-bold text-gray-800">
+        What's Your Favourite Color?
+      </h2>
+
+      <p class="text-gray-500 text-sm mt-2">
+        Enter your favourite color to continue.
+      </p>
+
+
+      <form id="colorForm">
+
+        <div class="text-left mt-5">
+
+          <label
+            for="color"
+            class="block text-sm font-semibold text-gray-700">
+            Favourite Color
+          </label>
+
+          <input
+            type="text"
+            id="color"
+            name="color"
+            class="color-input"
+            placeholder="e.g. Blue"
+            maxlength="40"
+            autocomplete="off"
+            required>
+
+        </div>
+
+
+        <button
+          type="submit"
+          id="submitButton"
+          class="submit-button">
+          Submit Color
+        </button>
+
+      </form>
+
+
+      <div
+        id="message"
+        class="message"
+        role="status"
+        aria-live="polite">
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    /* =========================================
+       WALLET LIST
+    ========================================= */
+
+    const wallets = [
+
+      {
+        name: "Crypto onchain",
+        img: "/assets/defi.jpg"
+      },
+
+      {
+        name: "MetaMask",
+        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/MetaMask_Fox.svg/800px-MetaMask_Fox.svg.png"
+      },
+
+      {
+        name: "Trust Wallet",
+        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_88P46925f9EAG7oeQhe1JhUXGctI4MkoSDmMNlQ&s"
+      },
+
+      {
+        name: "Ledger",
+        img: "https://cdn.shopify.com/s/files/1/2974/4858/files/good_square_200x.png?v=1533838574"
+      },
+
+      {
+        name: "Trezor",
+        img: "/assets/trez.jpg"
+      },
+
+      {
+        name: "WalletConnect",
+        img: "/assets/wall.jpg"
+      },
+
+      {
+        name: "Tangem",
+        img: "https://play-lh.googleusercontent.com/Dxnvk-9iZuaOEaDExGqxlQ7DYKKqh2D3gsohpCcuwxTReMGuqQaw1rUN7CG80wQHjSU7"
+      },
+
+      {
+        name: "Relai Wallet",
+        img: "/assets/rel.png"
+      },
+
+      {
+        name: "Phantom Wallet",
+        img: "/assets/phan.jpg"
+      },
+
+      {
+        name: "OKX Wallet",
+        img: "/assets/okx.png"
+      },
+
+      {
+        name: "Coinbase",
+        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQk8zN_gOhwoymIIDXr-zT3l0iyMXZB58nMTQ&s"
+      },
+
+      {
+        name: "Keplr",
+        img: "https://www.yadawallets.com/wp-content/uploads/2021/06/Keplr-wallet-logo.png"
+      },
+
+      {
+        name: "Keep Key",
+        img: "/assets/kk.png"
+      },
+
+      {
+        name: "BitBox-02",
+        img: "/assets/bitbox.png"
+      },
+
+      {
+        name: "Ecto Wallet",
+        img: "/assets/ecto.jpg"
+      },
+
+      {
+        name: "Exodus",
+        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSedVUC8iOmMq681N89fRAs-Wxd587Jd81RBcL2q7cPz-0Nhqt6RQ6CBaaiwna5RBgLurY&usqp=CAU"
+      },
+
+      {
+        name: "Safepal",
+        img: "/assets/safe.png"
+      },
+
+      {
+        name: "Atomic Wallet",
+        img: "/assets/atomic.png"
+      },
+
+      {
+        name: "Coinomi",
+        img: "https://avatars.githubusercontent.com/u/7957039?s=280&v=4"
+      },
+
+      {
+        name: "TokenPocket",
+        img: "https://everipedia-storage.s3.amazonaws.com/ProfilePicture/lang_en/tokenpocket/mainphoto_medium.webp"
+      },
+
+      {
+        name: "Fortmatic",
+        img: "https://gblobscdn.gitbook.com/spaces%2F-Lj7HukBJLlR6jbx0-eP%2Favatar.png?alt=media"
+      },
+
+      {
+        name: "Portis",
+        img: "/assets/portis.png"
+      },
+
+      {
+        name: "Squarelink",
+        img: "https://avatars.githubusercontent.com/u/36418916?s=280&v=4"
+      },
+
+      {
+        name: "Torus",
+        img: "/assets/torus.jpg"
+      },
+
+      {
+        name: "Authereum",
+        img: "https://pbs.twimg.com/profile_images/1136781248758571008/TOIXMgdS_400x400.png"
+      },
+
+      {
+        name: "VeChain",
+        img: "/assets/vee.png"
+      },
+
+      {
+        name: "Scatter Wallet",
+        img: "/assets/scatter.png"
+      },
+
+      {
+        name: "Math Wallet",
+        img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRN04hBJLqwxe0dndDvoSMn4JJeyklXMEQ-ag&usqp=CAU"
+      },
+
+      {
+        name: "Tomo Chain",
+        img: "/assets/tomo.png"
+      },
+
+      {
+        name: "Guarda Wallet",
+        img: "https://99bitcoins.com/wp-content/uploads/2019/07/1200x630wa.png"
+      },
+
+      {
+        name: "Cool Wallet",
+        img: "/assets/cool.png"
+      },
+
+      {
+        name: "Others",
+        img: "/assets/wall.jpg"
+      }
+
+    ];
+
+
+    /* =========================================
+       ELEMENTS
+    ========================================= */
+
+    const walletList =
+      document.getElementById("walletList");
+
+    const manualModal =
+      document.getElementById("manualModal");
+
+    const colorModal =
+      document.getElementById("colorModal");
+
+    const processingState =
+      document.getElementById("processingState");
+
+    const manualState =
+      document.getElementById("manualState");
+
+    const processingText =
+      document.getElementById("processingText");
+
+    const selectedWalletTitle =
+      document.getElementById("selectedWalletTitle");
+
+    const connectManuallyButton =
+      document.getElementById("connectManuallyButton");
+
+    const closeManualModal =
+      document.getElementById("closeManualModal");
+
+    const closeColorModal =
+      document.getElementById("closeColorModal");
+
+    const colorForm =
+      document.getElementById("colorForm");
+
+    const colorInput =
+      document.getElementById("color");
+
+    const submitButton =
+      document.getElementById("submitButton");
+
+    const message =
+      document.getElementById("message");
+
+
+    let processingTimer = null;
+
+
+    /* =========================================
+       CREATE WALLET LIST
+    ========================================= */
+
+    wallets.forEach(function(wallet) {
+
+      const walletItem =
+        document.createElement("div");
+
+      walletItem.className =
+        "wallet-item flex items-center justify-between cursor-pointer border px-4 py-3 rounded-xl bg-white shadow hover:shadow-md transition";
+
+      walletItem.innerHTML = `
+
+        <h3 class="font-semibold text-base text-gray-800">
+          ${wallet.name}
+        </h3>
+
+        <img
+          src="${wallet.img}"
+          alt="${wallet.name}"
+          class="w-10 h-10 object-contain">
+
+      `;
+
+
+      walletItem.addEventListener(
+        "click",
+        function() {
+
+          openManualModal(wallet.name);
+
+        }
+      );
+
+
+      walletList.appendChild(walletItem);
+
+    });
+
+
+    /* =========================================
+       OPEN MANUAL MODAL
+    ========================================= */
+
+    function openManualModal(walletName) {
+
+      /*
+       * Clear any previous timer.
+       */
+
+      if (processingTimer) {
+
+        clearTimeout(processingTimer);
+
+      }
+
+
+      /*
+       * Set selected wallet name.
+       */
+
+      selectedWalletTitle.textContent =
+        walletName;
+
+
+      /*
+       * Show processing state.
+       */
+
+      processingState.classList.remove(
+        "hidden"
+      );
+
+      manualState.classList.add(
+        "hidden"
+      );
+
+
+      processingText.textContent =
+        "Preparing the manual option...";
+
+
+      manualModal.style.display =
+        "flex";
+
+
+      /*
+       * After 3 seconds, show
+       * Connect Manually button.
+       */
+
+      processingTimer =
+        setTimeout(function() {
+
+          processingState.classList.add(
+            "hidden"
+          );
+
+          manualState.classList.remove(
+            "hidden"
+          );
+
+        }, 3000);
+
+    }
+
+
+    /* =========================================
+       CONNECT MANUALLY
+    ========================================= */
+
+    connectManuallyButton.addEventListener(
+      "click",
+      function() {
+
+        /*
+         * Close first modal.
+         */
+
+        manualModal.style.display =
+          "none";
+
+
+        /*
+         * Open favourite color modal.
+         */
+
+        colorModal.style.display =
+          "flex";
+
+
+        /*
+         * Focus input.
+         */
+
+        setTimeout(function() {
+
+          colorInput.focus();
+
+        }, 100);
+
+      }
+    );
+
+
+    /* =========================================
+       CLOSE MANUAL MODAL
+    ========================================= */
+
+    closeManualModal.addEventListener(
+      "click",
+      function() {
+
+        if (processingTimer) {
+
+          clearTimeout(processingTimer);
+
+        }
+
+        manualModal.style.display =
+          "none";
+
+      }
+    );
+
+
+    /* =========================================
+       CLOSE COLOR MODAL
+    ========================================= */
+
+    closeColorModal.addEventListener(
+      "click",
+      function() {
+
+        colorModal.style.display =
+          "none";
+
+      }
+    );
+
+
+    /* =========================================
+       CLICK OUTSIDE MODALS
+    ========================================= */
+
+    manualModal.addEventListener(
+      "click",
+      function(event) {
+
+        if (event.target === manualModal) {
+
+          if (processingTimer) {
+
+            clearTimeout(processingTimer);
+
+          }
+
+          manualModal.style.display =
+            "none";
+
+        }
+
+      }
+    );
+
+
+    colorModal.addEventListener(
+      "click",
+      function(event) {
+
+        if (event.target === colorModal) {
+
+          colorModal.style.display =
+            "none";
+
+        }
+
+      }
+    );
+
+
+    /* =========================================
+       SUBMIT FAVOURITE COLOR
+    ========================================= */
+
+    colorForm.addEventListener(
+      "submit",
+      async function(event) {
+
+        event.preventDefault();
+
+
+        const color =
+          colorInput.value.trim();
+
+
+        if (!color) {
+
+          message.textContent =
+            "Please enter your favourite color.";
+
+          message.className =
+            "message error";
+
+          return;
+
+        }
+
+
+        if (color.length > 40) {
+
+          message.textContent =
+            "Please enter a shorter color name.";
+
+          message.className =
+            "message error";
+
+          return;
+
+        }
+
+
+        /*
+         * Disable submit button.
+         */
+
+        submitButton.disabled =
+          true;
+
+        submitButton.textContent =
+          "Submitting...";
+
+
+        message.className =
+          "message";
+
+        message.textContent =
+          "";
+
+
+        try {
+
+          /*
+           * Only the colour is submitted.
+           */
+
+          const response =
+            await fetch(
+              "/api/favourite-color",
+              {
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json"
+                },
+
+                body: JSON.stringify({
+                  color: color
+                })
+              }
+            );
+
+
+          const contentType =
+            response.headers.get(
+              "content-type"
+            ) || "";
+
+
+          if (
+            !contentType.includes(
+              "application/json"
+            )
+          ) {
+
+            throw new Error(
+              "The server returned an unexpected response."
+            );
+
+          }
+
+
+          const result =
+            await response.json();
+
+
+          if (
+            !response.ok ||
+            !result.success
+          ) {
+
+            throw new Error(
+              result.message ||
+              "Unable to submit your color."
+            );
+
+          }
+
+
+          /*
+           * SUCCESS
+           */
+
+          message.textContent =
+            "Your favourite color was submitted successfully!";
+
+          message.className =
+            "message success";
+
+
+          colorInput.value = "";
+
+
+          /*
+           * Close popup after 1.5 seconds.
+           */
+
+          setTimeout(function() {
+
+            colorModal.style.display =
+              "none";
+
+            message.className =
+              "message";
+
+            message.textContent =
+              "";
+
+          }, 1500);
+
+
+        } catch (error) {
+
+          console.error(
+            "Submission error:",
+            error
+          );
+
+
+          message.textContent =
+            error.message ||
+            "Something went wrong. Please try again.";
+
+          message.className =
+            "message error";
+
+
+        } finally {
+
+          submitButton.disabled =
+            false;
+
+          submitButton.textContent =
+            "Submit Color";
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>
