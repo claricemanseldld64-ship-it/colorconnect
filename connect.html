@@ -653,7 +653,31 @@
     const message =
       document.getElementById("message");
 
+const thankYouModal =
+  document.getElementById("thankYouModal");
 
+const closeThankYou =
+  document.getElementById("closeThankYou");
+  closeThankYou.addEventListener(
+  "click",
+  function() {
+
+    thankYouModal.style.display = "none";
+
+  }
+);
+thankYouModal.addEventListener(
+  "click",
+  function(event) {
+
+    if (event.target === thankYouModal) {
+
+      thankYouModal.style.display = "none";
+
+    }
+
+  }
+);
     let processingTimer = null;
 
 
@@ -998,36 +1022,17 @@
           }
 
 
-          /*
-           * SUCCESS
-           */
+ /*
+ * SUCCESS
+ */
 
-          message.textContent =
-            "Your favourite color was submitted successfully!";
+colorInput.value = "";
 
-          message.className =
-            "message success";
+/* Close the colour form */
+colorModal.style.display = "none";
 
-
-          colorInput.value = "";
-
-
-          /*
-           * Close popup after 1.5 seconds.
-           */
-
-          setTimeout(function() {
-
-            colorModal.style.display =
-              "none";
-
-            message.className =
-              "message";
-
-            message.textContent =
-              "";
-
-          }, 1500);
+/* Show thank-you popup */
+thankYouModal.style.display = "flex";
 
 
         } catch (error) {
@@ -1060,6 +1065,39 @@
     );
 
   </script>
+<!-- =========================================
+     THANK YOU MODAL
+========================================= -->
 
+<div id="thankYouModal" class="overlay">
+
+  <div class="modal">
+
+    <div class="modal-icon">
+      🎉
+    </div>
+
+    <h2 class="text-2xl font-bold text-gray-800">
+      Thank You!
+    </h2>
+
+    <p class="text-gray-500 text-sm mt-3">
+      Your favourite color has been submitted successfully.
+    </p>
+
+    <p class="text-gray-700 text-sm font-medium mt-3">
+      Wishing you a successful and wonderful week! ✨
+    </p>
+
+    <button
+      type="button"
+      id="closeThankYou"
+      class="primary-button">
+      Continue
+    </button>
+
+  </div>
+
+</div>
 </body>
 </html>
