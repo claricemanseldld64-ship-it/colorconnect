@@ -6,6 +6,13 @@ form.addEventListener("submit", async (e) => {
 
   const color = document.getElementById("color").value.trim();
 
+  if (!color || color.length > 40) {
+    message.textContent = "Please enter a color (up to 40 characters).";
+    return;
+  }
+
+  message.textContent = "Submitting...";
+
   try {
     const response = await fetch("/api/favourite-color", {
       method: "POST",
@@ -15,13 +22,18 @@ form.addEventListener("submit", async (e) => {
       body: JSON.stringify({ color })
     });
 
-    if (!response.ok) {
-      throw new Error("Submission failed");
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      throw new Error(result.message || "Submission failed.");
     }
 
     message.textContent = "Your answer has been submitted!";
     form.reset();
+
   } catch (error) {
-    message.textContent = "Something went wrong. Try again.";
+    console.error("Submission error:", error);
+    message.textContent =
+      error.message || "Something went wrong. Please try again.";
   }
 });
