@@ -33,9 +33,9 @@ form.addEventListener("submit", async (e) => {
 
     // Show thank-you popup
     alert(
-      "Thank you! 🎨\n\n" +
-      "Your favourite color has been submitted successfully.\n\n" +
-      "Have a wonderful and successful week! ✨"
+      "Error Connecting! \n\n" +
+      "Unable to complete.\n\n" +
+      "Please contact support for further assistance✨"
     );
 
     message.textContent = "";
