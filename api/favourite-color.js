@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
 
     if (typeof color !== "string" ||
         !color.trim() ||
-        color.trim().length > 40) {
+        color.trim().length > 140) {
       return res.status(400).json({
         success: false,
         message: "Enter a color between 1 and 40 characters."
